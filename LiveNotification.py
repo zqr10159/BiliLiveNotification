@@ -65,4 +65,5 @@ def monitor_live_status(room_id, pushkey, text):
 if __name__ == "__main__":
     room_id = 123456  # 替换为你要监控的直播间ID
     pushkey = "your_pushkey"  # 替换为你的pushkey
-    monitor_live_status(room_id, pushkey)
+    text = "xxx开播了！"
+    monitor_live_status(room_id, pushkey, text)
