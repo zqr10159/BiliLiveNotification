@@ -13,6 +13,21 @@ def send_push_notification(pushkey, text):
         print("Failed to send push notification.")
 
 
+from datetime import datetime, timedelta
+
+import requests
+
+
+
+def send_push_notification(pushkey, text):
+    url = f"https://api2.pushdeer.com/message/push?pushkey={pushkey}&text={text}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        print("Push notification sent successfully.")
+    else:
+        print("Failed to send push notification.")
+
+
 def monitor_live_status(room_id, pushkey, text):
     global previous_status  # Access the global variable
 
@@ -25,24 +40,27 @@ def monitor_live_status(room_id, pushkey, text):
         data = response.json()
         live_status = data["data"]["live_status"]
         live_time = data["data"]["live_time"]
+        if live_status == 1:
+            # Convert live_time to datetime object
+            live_time = datetime.strptime(live_time, '%Y-%m-%d %H:%M:%S')
 
-        # Convert live_time to datetime object
-        live_time = datetime.strptime(live_time, '%Y-%m-%d %H:%M:%S')
+            # Get current time
+            current_time = datetime.now()
 
-        # Get current time
-        current_time = datetime.now()
+            # Calculate the difference between current time and live time
+            time_difference = current_time - live_time
 
-        # Calculate the difference between current time and live time
-        time_difference = current_time - live_time
-
-        # If the live status is 1 and the time difference is less than or equal to one minute, send a push notification
-        if live_status == 1 and time_difference <= timedelta(minutes=1):
-            send_push_notification(pushkey, text)
-            print("开播了")
-        elif live_status == 1 and time_difference > timedelta(minutes=1):
-            print("已开播")
+            # If the live status is 1 and the time difference is less than or equal to one minute, send a push notification
+            if time_difference <= timedelta(minutes=1):
+                send_push_notification(pushkey, text)
+                print("开播了")
+            elif time_difference > timedelta(minutes=1):
+                print("已开播")
+        else:
+            print("未开播")
     else:
         print("Failed to fetch live status.")
+
 
 if __name__ == "__main__":
     room_id = 123456  # 替换为你要监控的直播间ID
